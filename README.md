@@ -1,6 +1,9 @@
 # Cache me if you can: an Online Cost-aware Teacher-Student framework to Reduce the Calls to Large Language Models
 This repository is the official implementation of the [OCaTS Framework](https://arxiv.org/abs/2310.13395) that was introduced in the paper: Cache me if you can: an Online Cost-aware Teacher-Student framework to Reduce the Calls to Large Language Models.
 
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/cache-me-if-you-can-an-online-cost-aware/intent-detection-on-banking77)](https://paperswithcode.com/sota/intent-detection-on-banking77?p=cache-me-if-you-can-an-online-cost-aware)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/cache-me-if-you-can-an-online-cost-aware/sentiment-analysis-on-imdb)](https://paperswithcode.com/sota/sentiment-analysis-on-imdb?p=cache-me-if-you-can-an-online-cost-aware)
+
 ## Table of Contents
 
 - [Installation](#installation)
