@@ -4,6 +4,9 @@ This repository is the official implementation of the [OCaTS Framework](https://
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/cache-me-if-you-can-an-online-cost-aware/intent-detection-on-banking77)](https://paperswithcode.com/sota/intent-detection-on-banking77?p=cache-me-if-you-can-an-online-cost-aware)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/cache-me-if-you-can-an-online-cost-aware/sentiment-analysis-on-imdb)](https://paperswithcode.com/sota/sentiment-analysis-on-imdb?p=cache-me-if-you-can-an-online-cost-aware)
 
+## Acknowledgements 
+This work is supported from Google's [TPU Research Cloud (TRC) program](https://sites.research.google/trc/about/)
+
 ## Table of Contents
 
 - [Installation](#installation)
