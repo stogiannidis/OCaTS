@@ -92,11 +92,23 @@ This repository is licensed under the MIT license. See [LICENSE](LICENSE) for de
 ## Citation
 
 ```
-@article{stogiannidis_etal2023,
-  title={Cache me if you can: an Online Cost-aware Teacher-Student framework to Reduce the Calls to Large Language Models},
-  author={Ilias Stogiannidis and Stavros Vassos and Prodromos Malakasiotis and Ion Androutsopoulos},
-  journal={Findings of 2023 Conference on Empirical Methods in Natural Language Processing},
-  year={2023},
-  publisher={Association for Computational Linguistics}
+@inproceedings{stogiannidis-etal-2023-cache,
+    title = "Cache me if you Can: an Online Cost-aware Teacher-Student framework to Reduce the Calls to Large Language Models",
+    author = "Stogiannidis, Ilias  and
+      Vassos, Stavros  and
+      Malakasiotis, Prodromos  and
+      Androutsopoulos, Ion",
+    editor = "Bouamor, Houda  and
+      Pino, Juan  and
+      Bali, Kalika",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2023",
+    month = dec,
+    year = "2023",
+    address = "Singapore",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.findings-emnlp.1000",
+    doi = "10.18653/v1/2023.findings-emnlp.1000",
+    pages = "14999--15008",
+    abstract = "Prompting Large Language Models (LLMs) performs impressively in zero- and few-shot settings. Hence, small and medium-sized enterprises (SMEs) that cannot afford the cost of creating large task-specific training datasets, but also the cost of pretraining their own LLMs, are increasingly turning to third-party services that allow them to prompt LLMs. However, such services currently require a payment per call, which becomes a significant operating expense (OpEx). Furthermore, customer inputs are often very similar over time, hence SMEs end-up prompting LLMs with very similar instances. We propose a framework that allows reducing the calls to LLMs by caching previous LLM responses and using them to train a local inexpensive model on the SME side. The framework includes criteria for deciding when to trust the local model or call the LLM, and a methodology to tune the criteria and measure the tradeoff between performance and cost. For experimental purposes, we instantiate our framework with two LLMs, GPT-3.5 or GPT-4, and two inexpensive students, a $k$-NN classifier or a Multi-Layer Perceptron, using two common business tasks, intent recognition and sentiment analysis. Experimental results indicate that significant OpEx savings can be obtained with only slightly lower performance.",
 }
 ```
