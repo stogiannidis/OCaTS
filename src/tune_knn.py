@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 import optuna
 from sentence_transformers import SentenceTransformer
-from models.cache import Cache
+from caches.cache import SimpleCache
 from evaluate import load
 from utils.seeding import set_seed
 from models.knn import KNNClassifier
@@ -61,7 +61,7 @@ def objective(trial) -> float:
     d_thresh = trial.suggest_float("Distance Threshold", 0.05, 2)
 
     # Initialize the cache
-    cache = Cache().to(device)
+    cache = SimpleCache().to(device)
     cache.set_threshold(d_thresh)
     cache.fit(train_vec, train_data["label"].tolist())
 

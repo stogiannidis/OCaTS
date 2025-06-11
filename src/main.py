@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer  # For sentence embeddings
 from utils.seeding import set_seed  # For setting the seed
 from models.knn import KNNClassifier  # KNN classifier
 from models.mpnet import MPNetClassifier  # MPNet classifier
-from models.cache import Cache  # For caching functionality
+from caches.cache import SimpleCache  # For caching functionality
 
 # Third-party library imports
 from tqdm.auto import tqdm  # For progress bar
@@ -132,7 +132,7 @@ def main(lamda: float, config: dict, model_name: str) -> None:
         calls_ = []
 
         # Initialize the cache
-        cache = Cache(train_embeddings, train_labels, d_thresh)
+        cache = SimpleCache(train_embeddings, train_labels, d_thresh)
 
         #Initialize classifier model
         if model_name == "knn":
@@ -178,7 +178,7 @@ def main(lamda: float, config: dict, model_name: str) -> None:
             entropy = -torch.sum(cls_probs * torch.log(cls_probs))
 
             # Check if the vector is near the weighted centroid of the top k nearest neighbors
-            if torch.gt(entropy, e_thresh) or not cache.is_near_wcentroid(v): #IF the thresholds are met
+            if torch.gt(entropy, e_thresh) or not cache.is_near(v): #IF the thresholds are met
                 # Add the vector to the cache
                 cache.add(v, l)
                 # Get the predictions of the Teacher
@@ -189,7 +189,7 @@ def main(lamda: float, config: dict, model_name: str) -> None:
             labels.append(gt)
                  
             if model_name == "mpnet" and calls % RETRAIN_NUM == 0 and calls != 0:
-                last_100 = cache.get_last_100_added()
+                last_100 = cache.get_last_p_added()
                 # Create the data loader
                 loader = DataLoader(last_100, batch_size=32, shuffle=True)
                 # Train the model

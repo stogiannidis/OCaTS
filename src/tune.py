@@ -7,7 +7,7 @@ import pandas as pd
 import optuna
 from sentence_transformers import SentenceTransformer
 
-from models.cache import Cache
+from caches.cache import SimpleCache
 from evaluate import load
 from utils.seeding import set_seed
 from models.mpnet import MPNetClassifier
@@ -94,7 +94,7 @@ def objective(trial, config) -> float:
     model.to(device)
     model.eval()
     
-    cache = Cache()
+    cache = SimpleCache()
     cache.fit(test_embeddings, train_data["label"].tolist())
     cache.to(device)
 
@@ -117,7 +117,7 @@ def objective(trial, config) -> float:
         entropy = -torch.sum(probs * torch.log(probs), dim=1)
 
         #Check if the entropy is less than the threshold and if the vector is within the distance threshold
-        if torch.lt(entropy, e_thresh) and cache.is_near_wcentroid(v):
+        if torch.lt(entropy, e_thresh) and cache.is_near(v):
             preds.append(logits.argmax(dim=1))
         else:
             cache.add(v, l)
@@ -127,7 +127,7 @@ def objective(trial, config) -> float:
         #retrain the model after every 100 calls
         if calls == calls_to_retrain:
             #Get last 100 predictions and labels
-            data100 = cache.get_last_100_added()
+            data100 = cache.get_last_p_added()
             # Train the model on the last 100 data points
             train(model, data100, config)
             calls_to_retrain += 100 #Increase the number of calls to retrain by 100            

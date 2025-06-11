@@ -1,6 +1,6 @@
 import torch  # PyTorch deep learning library
 import torch.nn.functional as F  # PyTorch functional interface
-from .cache import Cache
+from src.caches.cache import SimpleCache
 
 class KNNClassifier():
     """
@@ -23,7 +23,7 @@ class KNNClassifier():
         Predict the probability distribution over all the labels for the query.
     """
 
-    def __init__(self, cache: Cache):
+    def __init__(self, cache: SimpleCache):
         super().__init__()
         self.cache = cache
         self.len_unique_labels = len(set(self.cache.labels))
