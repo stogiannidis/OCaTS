@@ -1,0 +1,18 @@
+[project]
+name = "ocatsplus"
+version = "0.1.0"
+description = "An improved implementation of the OCATS framework for caching in LLMs."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "evaluate>=0.4.3",
+    "matplotlib>=3.10.3",
+    "neptune>=1.14.0",
+    "optuna>=4.3.0",
+    "pandas>=2.3.0",
+    "scikit-learn>=1.7.0",
+    "sentence-transformers>=4.1.0",
+    "torch>=2.7.1",
+    "tqdm>=4.67.1",
+    "transformers>=4.52.4",
+]

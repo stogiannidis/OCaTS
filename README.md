@@ -18,30 +18,11 @@ This work is supported from Google's [TPU Research Cloud (TRC) program](https://
 ## Installation
 
 In order to use the framework, you need to clone the repository and
-install the packages in the `requirements.txt` file. We recommend using a virtual environment to install the packages. You can use the following commands to create a virtual environment and install the packages:
+install the packages in the `pyproject.toml` file. We recommend using a virtual environment to install the packages. You can use the following commands to create a virtual environment and install the packages with [uv](https://docs.astral.sh/uv/):
 
-* Conda:
 ```setup
-conda create -n ocats python=3.11
-conda activate ocats
-pip install -r requirements.txt
+uv sync
 ```
-
-* Virtualenv:
-```setup
-virtualenv ocats
-source ocats/bin/activate
-pip install -r requirements.txt
-```
-
-* Pyenv:
-```setup
-pyenv virtualenv 3.11 ocats
-pyenv activate ocats
-pip install -r requirements.txt
-```
-
-We recommend using conda to install the packages as it is the easiest way to install the packages. If you don't have conda installed, you can install it from [here](https://docs.conda.io/en/latest/miniconda.html).
 
 ## Usage
 In order to use the framework, you need to first train the student model, if you are using a $k$-NN, you can skip this step. Then you need to tune the decision thesholds of the framework and then use the framework. The framework is implemented in the `main.py` file.
