@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 import optuna
 from sentence_transformers import SentenceTransformer
-from models.cache import Cache
+from caches.base import CACHE_REGISTRY
 from evaluate import load
 from utils.seeding import set_seed
 from models.knn import KNNClassifier
@@ -27,6 +27,7 @@ def parse_args():
 
     # Path to the configuation file
     parser.add_argument('-c', '--config', type=str, help='Config file path', required=False)
+    parser.add_argument('-ct', '--cache_type', type=str, help='Type of cache to use', default="simple")
     parser.add_argument('-l', '--lambdas', type=float, help='List of lambda values', default=[0.05, 0.1, 0.2, 0.3, 0.4, 0.5], nargs="*")
     parser.add_argument('-t', '--train_path', type=str, help='Path to the train data', default="data/processed/banking77/best3_train.csv")
     parser.add_argument('-d', '--dev_path', type=str, help='Path to the dev data', default="data/processed/banking77/dev.csv")
@@ -34,9 +35,9 @@ def parse_args():
 
     args = parser.parse_args()
 
-    return args.config, args.lambdas, args.train_path, args.dev_path, args.study_name
+    return args.config, args.cache_type, args.lambdas, args.train_path, args.dev_path, args.study_name
 
-CONFIG, LAMBDAS, TRAIN_PATH, DEV_PATH, STUDY_NAME = parse_args()
+CONFIG, CACHE_TYPE, LAMBDAS, TRAIN_PATH, DEV_PATH, STUDY_NAME = parse_args()
 device = xm.xla_device() if TPU_FLAG else torch.device("cuda" if torch.cuda.is_available() else "mps")
 encoder = SentenceTransformer("all-mpnet-base-v2").to(device)
 
@@ -61,7 +62,8 @@ def objective(trial) -> float:
     d_thresh = trial.suggest_float("Distance Threshold", 0.05, 2)
 
     # Initialize the cache
-    cache = Cache().to(device)
+    cache_class = CACHE_REGISTRY[CACHE_TYPE]
+    cache = cache_class().to(device)
     cache.set_threshold(d_thresh)
     cache.fit(train_vec, train_data["label"].tolist())
 
@@ -82,7 +84,7 @@ def objective(trial) -> float:
 
         entropy = -torch.sum(probs * torch.log(probs), dim=1)
 
-        if torch.lt(entropy, e_thresh) and cache.is_near_wcentroid(query):
+        if torch.lt(entropy, e_thresh) and cache.is_near(query):
             pred = probs.argmax()
 
         else:

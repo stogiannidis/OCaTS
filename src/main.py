@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer  # For sentence embeddings
 from utils.seeding import set_seed  # For setting the seed
 from models.knn import KNNClassifier  # KNN classifier
 from models.mpnet import MPNetClassifier  # MPNet classifier
-from models.cache import Cache  # For caching functionality
+from caches.base import CACHE_REGISTRY  # For caching functionality
 
 # Third-party library imports
 from tqdm.auto import tqdm  # For progress bar
@@ -33,6 +33,7 @@ parser = argparse.ArgumentParser(description='Process command line arguments')
 # Path to the configuation file
 parser.add_argument('-c', '--config', type=str, help='Config file path', default="src/utils/config.json")
 parser.add_argument('-m', '--model', type=str, help='Model to evaluate', default="knn")
+parser.add_argument('-ct', '--cache_type', type=str, help='Type of cache to use', default="simple")
 parser.add_argument('-l', '--lambdas', type=float, help='List of lambda values', default=[0.05, 0.1, 0.2, 0.3, 0.4, 0.5], nargs="*")
 parser.add_argument('-s', '--seed', type=int, help='Seed for reproducibility', default=54321)
 parser.add_argument('-t', '--train_path', type=str, help='Path to the training data', default="data/processed/banking77/best3_train.csv")
@@ -45,6 +46,7 @@ args = parser.parse_args()
 # CONSTANTS
 CONFIG_PATH = args.config
 MODEL_NAME = args.model
+CACHE_TYPE = args.cache_type
 LAMBDAS = args.lambdas
 SEED = args.seed
 TRAIN_PATH = args.train_path
@@ -104,7 +106,7 @@ def train(model: torch.nn.Module, data: DataLoader, config: dict) -> None:
             xm.mark_step() if TPU_FLAG else None
 
 
-def main(lamda: float, config: dict, model_name: str) -> None:
+def main(lamda: float, config: dict, model_name: str, cache_type: str) -> None:
     # Define the number of samples to retrain the model
     RETRAIN_NUM = 100
 
@@ -132,7 +134,8 @@ def main(lamda: float, config: dict, model_name: str) -> None:
         calls_ = []
 
         # Initialize the cache
-        cache = Cache(train_embeddings, train_labels, d_thresh)
+        cache_class = CACHE_REGISTRY[cache_type]
+        cache = cache_class(train_embeddings, train_labels, d_thresh)
 
         #Initialize classifier model
         if model_name == "knn":
@@ -178,7 +181,7 @@ def main(lamda: float, config: dict, model_name: str) -> None:
             entropy = -torch.sum(cls_probs * torch.log(cls_probs))
 
             # Check if the vector is near the weighted centroid of the top k nearest neighbors
-            if torch.gt(entropy, e_thresh) or not cache.is_near_wcentroid(v): #IF the thresholds are met
+            if torch.gt(entropy, e_thresh) or not cache.is_near(v): #IF the thresholds are met
                 # Add the vector to the cache
                 cache.add(v, l)
                 # Get the predictions of the Teacher
@@ -189,7 +192,7 @@ def main(lamda: float, config: dict, model_name: str) -> None:
             labels.append(gt)
                  
             if model_name == "mpnet" and calls % RETRAIN_NUM == 0 and calls != 0:
-                last_100 = cache.get_last_100_added()
+                last_100 = cache.get_last_p_added(p=100)
                 # Create the data loader
                 loader = DataLoader(last_100, batch_size=32, shuffle=True)
                 # Train the model
@@ -249,7 +252,7 @@ if __name__ == "__main__":
     total_accs, total_disc_accs, total_calls = [], [], []
     for lamda in LAMBDAS:
         # Run the main function
-        accs, disc_accs, calls = main(lamda, config, MODEL_NAME)
+        accs, disc_accs, calls = main(lamda, config, MODEL_NAME, CACHE_TYPE)
         # Append the results
         total_accs.append(accs)
         total_disc_accs.append(disc_accs)
