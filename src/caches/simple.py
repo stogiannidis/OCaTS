@@ -2,10 +2,11 @@ import torch  # PyTorch deep learning library
 from torch.utils.data import TensorDataset
 import torch.nn.functional as F  # PyTorch functional interface
 
-from src.caches.base import BaseCache
+from src.caches.base import BaseCache, register_class
 from typing import override, Optional, List
 
 
+@register_class("simple")
 class SimpleCache(BaseCache):
     """
     A simple cache that stores the vectors and labels of the training data

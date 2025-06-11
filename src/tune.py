@@ -7,7 +7,7 @@ import pandas as pd
 import optuna
 from sentence_transformers import SentenceTransformer
 
-from caches.cache import SimpleCache
+from caches.base import CACHE_REGISTRY
 from evaluate import load
 from utils.seeding import set_seed
 from models.mpnet import MPNetClassifier
@@ -29,6 +29,7 @@ def parse_args():
 
     # Path to the configuation file
     parser.add_argument('-c', '--config', type=str, help='Config file path', required=True, default="src/utils/config.json")
+    parser.add_argument('-ct', '--cache_type', type=str, help='Type of cache to use', default="simple")
     parser.add_argument('-l', '--lambdas', type=float, help='List of lambda values', default=[0.05, 0.1, 0.2, 0.3, 0.4, 0.5], nargs="*")
     parser.add_argument('-t', '--train_path', type=str, help='Path to the train data', default="data/processed/banking77/best3_train.csv")
     parser.add_argument('-d', '--dev_path', type=str, help='Path to the dev data', default="data/processed/banking77/dev.csv")
@@ -39,9 +40,9 @@ def parse_args():
     with open(args.config, "r") as f:
         config = json.load(f)
 
-    return args.config, config, args.lambdas, args.train_path, args.dev_path, args.study_name
+    return args.config, config, args.cache_type, args.lambdas, args.train_path, args.dev_path, args.study_name
 
-CONFIG_PATH, CONFIG, LAMBDAS, TRAIN_PATH, DEV_PATH, STUDY_NAME = parse_args()
+CONFIG_PATH, CONFIG, CACHE_TYPE, LAMBDAS, TRAIN_PATH, DEV_PATH, STUDY_NAME = parse_args()
 
 device = xm.xla_device() if TPU_FLAG else torch.device("cuda" if torch.cuda.is_available() else "mps")
 encoder = SentenceTransformer("all-mpnet-base-v2").to(device)
@@ -94,7 +95,9 @@ def objective(trial, config) -> float:
     model.to(device)
     model.eval()
     
-    cache = SimpleCache()
+
+    cache_class = CACHE_REGISTRY[CACHE_TYPE]
+    cache = cache_class()
     cache.fit(test_embeddings, train_data["label"].tolist())
     cache.to(device)
 

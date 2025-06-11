@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import TensorDataset
 
-from typing import Optional, List
+from typing import Optional, List, Type
 from abc import ABC, abstractmethod
 
 
@@ -153,3 +153,26 @@ class BaseCache(torch.nn.Module, ABC):
             The labels of the training data.
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
+
+
+class CacheRegistry:
+    def __init__(self):
+        self._registry = {}
+
+    def register(self, name: str, cls: Type[BaseCache]) -> None:
+        self._registry[name] = cls
+
+    def __getitem__(self, name: str) -> Type[BaseCache]:
+        if name not in self._registry:
+            raise KeyError(f"Cache class '{name}' is not registered.")
+        return self._registry[name]
+
+# Global registry
+CACHE_REGISTRY = CacheRegistry()
+
+# Decorator to register classes
+def register_class(name):
+    def decorator(cls):
+        CACHE_REGISTRY.register(name, cls)
+        return cls
+    return decorator
