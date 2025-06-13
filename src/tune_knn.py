@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 import optuna
 from sentence_transformers import SentenceTransformer
-from caches.base import CACHE_REGISTRY
+from src.caches import CACHE_REGISTRY
 from evaluate import load
 from utils.seeding import set_seed
 from models.knn import KNNClassifier
@@ -29,9 +29,9 @@ def parse_args():
     parser.add_argument('-c', '--config', type=str, help='Config file path', required=False)
     parser.add_argument('-ct', '--cache_type', type=str, help='Type of cache to use', default="simple")
     parser.add_argument('-l', '--lambdas', type=float, help='List of lambda values', default=[0.05, 0.1, 0.2, 0.3, 0.4, 0.5], nargs="*")
-    parser.add_argument('-t', '--train_path', type=str, help='Path to the train data', default="data/processed/banking77/best3_train.csv")
+    parser.add_argument('-t', '--train_path', type=str, help='Path to the train data', default="data/processed/banking77/train.csv")
     parser.add_argument('-d', '--dev_path', type=str, help='Path to the dev data', default="data/processed/banking77/dev.csv")
-    parser.add_argument('-s', '--study_name', type=str, help='Name of the study', default="kNN-HyperParam-Tuning-IMDB")
+    parser.add_argument('-s', '--study_name', type=str, help='Name of the study', default="kNN-HyperParam-Tuning-Banking77")
 
     args = parser.parse_args()
 
