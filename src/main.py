@@ -6,12 +6,13 @@ from sentence_transformers import SentenceTransformer  # For sentence embeddings
 from utils.seeding import set_seed  # For setting the seed
 from models.knn import KNNClassifier  # KNN classifier
 from models.mpnet import MPNetClassifier  # MPNet classifier
-from caches.base import CACHE_REGISTRY  # For caching functionality
+from src.caches.base import CACHE_REGISTRY  # For caching functionality
 
 # Third-party library imports
 from tqdm.auto import tqdm  # For progress bar
 import torch  # PyTorch deep learning library
 from torch.utils.data import DataLoader, TensorDataset # For creating data loaders
+import numpy as np
 
 # Standard library imports
 import pandas as pd  # For data manipulation and analysis
