@@ -28,27 +28,23 @@ class LFUCache(BaseCache):
     """
     def __init__(
         self,
-        capacity: int,
         encodings: Optional[torch.Tensor] = None,
         labels: Optional[List[int]] = None,
         d_thresh: float = 0.5,
-        k: int = 5
+        k: int = 5,
+        capacity: int = 100,
     ) -> None:
         super().__init__(encodings=None, labels=None, d_thresh=d_thresh, k=k)
-        if encodings is not None and labels is not None:
-            self.fit(encodings, labels)
         self._capacity = capacity
         self._freq = torch.ones(len(self.database), dtype=torch.long)
+        if encodings is not None and labels is not None:
+            self.fit(encodings, labels)
 
-    
-    @property
-    def capacity(self) -> int:
-        return self._capacity
 
     @override
-    def top_k(self, query: str | torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def top_k(self, query: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         # Compute the Cosine distance between the query and the database vectors
-        dist = 1 - F.cosine_similarity(query, self.database, dim=1)
+        dist = 1 - F.cosine_similarity(query.to(self.database.device), self.database, dim=1)
         # Get the top k nearest neighbors
         d, top_k = torch.topk(dist, k=min(self.k, len(dist)), dim=0, largest=False)
         self._freq[top_k] += 1  # LFU update
@@ -83,7 +79,7 @@ class LFUCache(BaseCache):
     
 
     @override
-    def is_near(self, query: str | torch.Tensor) -> bool:
+    def is_near(self, query: torch.Tensor) -> bool:
         """
         Check if the query is near the weighted centroid of the top k nearest neighbors.
         
@@ -103,7 +99,7 @@ class LFUCache(BaseCache):
         # Calculate the weighted centroid
         weighted_centroid = self._topk_w_centroid(query)
         # Calculate the distance between the query and the weighted centroid
-        dist = 1 - F.cosine_similarity(query, weighted_centroid, dim=1)
+        dist = 1 - F.cosine_similarity(query.to(device=weighted_centroid.device), weighted_centroid, dim=1)
         return torch.lt(dist, self.d_thresh)
 
 
@@ -118,11 +114,11 @@ class LFUCache(BaseCache):
         if self.is_near(query):
             return
 
-        if len(self) < self.capacity:
+        if len(self) < self._capacity:
             # append
-            self.database = torch.cat([self.database, query])
+            self.database = torch.cat((self.database, query.unsqueeze(0).to(self.database.device)))
             self.labels.append(label)
-            self._freq = torch.cat([self._freq, torch.ones(1, dtype=torch.long, device=self.database.device)])
+            self._freq = torch.cat([self._freq, torch.ones(1, dtype=torch.long, device=self._freq.device)])
             return
 
         # --------  Eviction path  -------- #
