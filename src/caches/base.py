@@ -173,8 +173,6 @@ CACHE_REGISTRY = CacheRegistry()
 # Decorator to register classes
 def register_class(name):
     def decorator(cls):
-        print(f"Registering cache class: {name}")
         CACHE_REGISTRY.register(name, cls)
-        print(CACHE_REGISTRY._registry)
         return cls
     return decorator
