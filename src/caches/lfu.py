@@ -109,16 +109,16 @@ class LFUCache(BaseCache):
             label = label.item()
             assert isinstance(label, int)
 
-        # If similar enough to existing vectors and we want deduplication,
-        # simply skip insertion.
-        if self.is_near(query):
-            return
-
         if len(self) < self._capacity:
             # append
             self.database = torch.cat((self.database, query.unsqueeze(0).to(self.database.device)))
             self.labels.append(label)
             self._freq = torch.cat([self._freq, torch.ones(1, dtype=torch.long, device=self._freq.device)])
+            return
+        
+        # If similar enough to existing vectors and we want deduplication,
+        # simply skip insertion.
+        if self.is_near(query):
             return
 
         # --------  Eviction path  -------- #
