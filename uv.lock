@@ -955,6 +955,15 @@ wheels = [
 ]
 
 [[package]]
+name = "narwhals"
+version = "1.46.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/7f/dd8c5f7978c3136de4d660877a5279e4688ad0c56dbc15ee003c2fe981cd/narwhals-1.46.0.tar.gz", hash = "sha256:fd7e53860b233c2b5566d8b4e1b3e8e9c01b5a87649a9f9a322742000f207a60", size = 512060, upload-time = "2025-07-07T11:34:44.391Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/64/c46ba7517d90e330c4f35af1256d4b12ba037e2ef17d4aa4d4f11b4a143d/narwhals-1.46.0-py3-none-any.whl", hash = "sha256:f15d2255695d7e99f624f76aa5b765eb3fff8a509d3215049707af3a3feebc90", size = 373394, upload-time = "2025-07-07T11:34:42.251Z" },
+]
+
+[[package]]
 name = "neptune"
 version = "1.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -982,6 +991,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4f/62/0507203429e64eac26509c48518e8f6f3997a9480efa9176166f714a049c/neptune-1.14.0.tar.gz", hash = "sha256:041396cbd24d5af0e0887f1fa6da0367837c55f1032bb7ff5d8ec010fd75fac1", size = 260645, upload-time = "2025-04-15T07:28:34.617Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/67/71/51f3392fc1ac96ef7e98295dc23fda960b71c9675d534963f9ed91174ffb/neptune-1.14.0-py3-none-any.whl", hash = "sha256:09485726e5de481871cd0d0763bba96503f00ec1a4ee24509c308f903f036937", size = 487891, upload-time = "2025-04-15T07:28:32.442Z" },
+]
+
+[[package]]
+name = "neptune-optuna"
+version = "1.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "optuna" },
+    { name = "plotly" },
+    { name = "scikit-learn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/78/7b945c569f3712c8e95a40c7a90e047dd8a2e155aeefc352067e5d40eb4e/neptune_optuna-1.4.1.tar.gz", hash = "sha256:ca8886eff35986a33650de7091cacd7caa8d5602c2bf22f5a3478c2915a53453", size = 14123, upload-time = "2024-11-07T12:04:51.591Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/c2/00adfd18452e2fe451c3049f5423379ffaf71a4056919e8fe8908467eab5/neptune_optuna-1.4.1-py3-none-any.whl", hash = "sha256:569509eafaae9ecac060cce4925f0c4bc5af71fc3e4d536ec0c2da4810b1efdb", size = 14396, upload-time = "2024-11-07T12:04:50.187Z" },
 ]
 
 [[package]]
@@ -1184,6 +1207,7 @@ dependencies = [
     { name = "evaluate" },
     { name = "matplotlib" },
     { name = "neptune" },
+    { name = "neptune-optuna" },
     { name = "optuna" },
     { name = "pandas" },
     { name = "scikit-learn" },
@@ -1198,6 +1222,7 @@ requires-dist = [
     { name = "evaluate", specifier = ">=0.4.3" },
     { name = "matplotlib", specifier = ">=3.10.3" },
     { name = "neptune", specifier = ">=1.14.0" },
+    { name = "neptune-optuna", specifier = ">=1.4.1" },
     { name = "optuna", specifier = ">=4.3.0" },
     { name = "pandas", specifier = ">=2.3.0" },
     { name = "scikit-learn", specifier = ">=1.7.0" },
@@ -1307,6 +1332,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/92/1ca0c3f09233bd7decf8f7105a1c4e3162fb9142128c74adad0fb361b7eb/pillow-11.2.1-cp313-cp313t-win32.whl", hash = "sha256:e0b55f27f584ed623221cfe995c912c61606be8513bfa0e07d2c674b4516d9dd", size = 2335774, upload-time = "2025-04-12T17:49:04.889Z" },
     { url = "https://files.pythonhosted.org/packages/a5/ac/77525347cb43b83ae905ffe257bbe2cc6fd23acb9796639a1f56aa59d191/pillow-11.2.1-cp313-cp313t-win_amd64.whl", hash = "sha256:36d6b82164c39ce5482f649b437382c0fb2395eabc1e2b1702a6deb8ad647d6e", size = 2681895, upload-time = "2025-04-12T17:49:06.635Z" },
     { url = "https://files.pythonhosted.org/packages/67/32/32dc030cfa91ca0fc52baebbba2e009bb001122a1daa8b6a79ad830b38d3/pillow-11.2.1-cp313-cp313t-win_arm64.whl", hash = "sha256:225c832a13326e34f212d2072982bb1adb210e0cc0b153e688743018c94a2681", size = 2417234, upload-time = "2025-04-12T17:49:08.399Z" },
+]
+
+[[package]]
+name = "plotly"
+version = "6.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "narwhals" },
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6e/5c/0efc297df362b88b74957a230af61cd6929f531f72f48063e8408702ffba/plotly-6.2.0.tar.gz", hash = "sha256:9dfa23c328000f16c928beb68927444c1ab9eae837d1fe648dbcda5360c7953d", size = 6801941, upload-time = "2025-06-26T16:20:45.765Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/20/f2b7ac96a91cc5f70d81320adad24cc41bf52013508d649b1481db225780/plotly-6.2.0-py3-none-any.whl", hash = "sha256:32c444d4c940887219cb80738317040363deefdfee4f354498cc0b6dab8978bd", size = 9635469, upload-time = "2025-06-26T16:20:40.76Z" },
 ]
 
 [[package]]

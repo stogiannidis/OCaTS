@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import TensorDataset
 
-from typing import Optional, List, Type
+from typing import Optional, List, Type, Union, Tuple
 from abc import ABC, abstractmethod
 
 
@@ -90,7 +90,7 @@ class BaseCache(torch.nn.Module, ABC):
     
 
     @abstractmethod
-    def top_k(self, query: str | torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def top_k(self, query: Union[str, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Get the top k nearest neighbors of the query.
 
@@ -108,7 +108,7 @@ class BaseCache(torch.nn.Module, ABC):
     
 
     @abstractmethod
-    def is_near(self, query: str | torch.Tensor) -> bool:
+    def is_near(self, query: Union[str, torch.Tensor]) -> bool:
         """
         Check if the query is near the top k nearest neighbors by a custom criteria.
         
@@ -126,7 +126,7 @@ class BaseCache(torch.nn.Module, ABC):
 
 
     @abstractmethod
-    def add(self, query: str, label: int | torch.Tensor)-> None:
+    def add(self, query: str, label: Union[int, torch.Tensor])-> None:
         """
         Add the query and its label to the database.
 
