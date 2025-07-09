@@ -20,6 +20,8 @@ from evaluate import load # For loading the evaluation metrics
 import argparse  # For command-line argument parsing
 import json  # For working with JSON data
 
+import os
+
 # TPU-specific imports
 try:
     import torch_xla
@@ -107,41 +109,24 @@ def train(model: torch.nn.Module, data: DataLoader, config: dict) -> None:
             xm.mark_step() if TPU_FLAG else None
 
 
-def main(lamda: float, config: dict, model_name: str, cache_type: str) -> None:
-    # Define the number of samples to retrain the model
+def main(lamda: float, config: dict, model_name: str, cache_type: str) -> tuple:
     RETRAIN_NUM = 100
-
-    # Create the test set
     test_set = TensorDataset(test_embeddings, torch.tensor(test_labels), torch.tensor(test_gpt_labels))
-
-    # Define the number of shuffles
     num_runs = 5
 
-    # Define entropy and distance thresholds
     e_thresh = config[model_name]["e_thresh"][str(lamda)]
     d_thresh = config[model_name]["d_thresh"][str(lamda)]
 
-    # Average the results over the number of shuffles
-    avg_accs = []
-    avg_disc_accs = []
-    avg_calls = []
+    avg_accs, avg_disc_accs, avg_calls = [], [], []
 
-    # Iterate over the number of shuffles and evaluate the model
     for run in range(num_runs):
-        
-        #================================================================#
-        accs = []
-        disc_accs = []
-        calls_ = []
+        accs, disc_accs, calls_ = [], [], []
 
-        # Initialize the cache
         cache_class = CACHE_REGISTRY[cache_type]
         cache = cache_class(train_embeddings, train_labels, d_thresh)
 
-        #Initialize classifier model
         if model_name == "knn":
             model = KNNClassifier(cache=cache)
-            
         elif model_name == "mpnet":
             hidden_size = config[model_name]["hidden_size"]
             activation = config[model_name]["activation"]
@@ -153,72 +138,67 @@ def main(lamda: float, config: dict, model_name: str, cache_type: str) -> None:
         else:
             print("Invalid model. Exiting...")
             exit()
-        
-        #================================================================#
-        #               Streaming Simulation over the test data          #
-        #================================================================#
-        
-        # Create the data loader
+
         online_stream = DataLoader(test_set, batch_size=1, shuffle=True)
 
-        # Online evaluation
-        predictions = []
-        labels = []
+        predictions, labels = [], []
         calls = 0
 
         for step, (v, gt, l) in enumerate(tqdm(online_stream, desc=f"Online Eval - Lambda: {lamda} - Run: {run+1}", leave=False)):
-            # Move the data to the device
-            v = v.to(device)
-            l = l.to(device)
-            gt = gt.to(device)
-
-            # Get the cls prediction 
+            v, l, gt = v.to(device), l.to(device), gt.to(device)
             cls_probs = model(v)
             if model_name == "mpnet":
                 cls_probs = torch.softmax(cls_probs, dim=1)
-            pred = torch.argmax(cls_probs) 
+            pred = torch.argmax(cls_probs)
 
-            #Calculate the entropy
             entropy = -torch.sum(cls_probs * torch.log(cls_probs))
 
-            # Check if the vector is near the weighted centroid of the top k nearest neighbors
-            if torch.gt(entropy, e_thresh) or not cache.is_near(v): #IF the thresholds are met
-                # Add the vector to the cache
+            if torch.gt(entropy, e_thresh) or not cache.is_near(v):
                 cache.add(v, l)
-                # Get the predictions of the Teacher
                 pred = l
                 calls += 1
 
             predictions.append(pred)
             labels.append(gt)
-                 
+
             if model_name == "mpnet" and calls % RETRAIN_NUM == 0 and calls != 0:
                 last_100 = cache.get_last_p_added(p=100)
-                # Create the data loader
                 loader = DataLoader(last_100, batch_size=32, shuffle=True)
-                # Train the model
                 train(model, loader, config)
                 RETRAIN_NUM += 100
 
-            # Calculate the accuracy after each streamed sample
-            accuracy = eval_fn.compute(predictions=predictions, references=labels)["accuracy"]           
+            accuracy = eval_fn.compute(predictions=predictions, references=labels)["accuracy"]
             disc_acc = accuracy - lamda * calls / len(predictions)
-            #log the results
-            
-            # Append the results
             accs.append(accuracy)
             disc_accs.append(disc_acc)
             calls_.append(calls)
-        #================================================================#
-        # Append the results
+
         avg_accs.append(accs)
         avg_disc_accs.append(disc_accs)
         avg_calls.append(calls_)
-    
-    # Calculate the average results
+
     avg_accs = np.mean(avg_accs, axis=0)
     avg_disc_accs = np.mean(avg_disc_accs, axis=0)
     avg_calls = np.mean(avg_calls, axis=0)
+
+    # === Save results ===
+    result_dir = os.path.join("results", "Evaluate")
+    os.makedirs(result_dir, exist_ok=True)
+
+    npz_path = os.path.join(result_dir, f"results_{model_name}_{cache_type}_lambda{lamda}.npz")
+    np.savez(npz_path, accs=avg_accs, disc_accs=avg_disc_accs, calls=avg_calls)
+    print(f"✅ Saved .npz results to {npz_path}")
+
+    # Optional JSON summary
+    json_summary = {
+        "final_accuracy": float(avg_accs[-1]),
+        "final_discounted_accuracy": float(avg_disc_accs[-1]),
+        "total_calls": int(avg_calls[-1])
+    }
+    json_path = os.path.join(result_dir, f"summary_{model_name}_{cache_type}_lambda{lamda}.json")
+    with open(json_path, "w") as f:
+        json.dump(json_summary, f, indent=2)
+    print(f"✅ Saved JSON summary to {json_path}")
 
     return avg_accs, avg_disc_accs, avg_calls
 

@@ -2,25 +2,25 @@
     "mpnet-fd": {
         "hidden_size": 256,
         "activation": "silu",
-        "dropout": 0.22, 
-        "lr": 16e-4,
+        "dropout": 0.22,
+        "lr": 0.0016,
         "checkpoint": "bin/mpnet-best-fd.pt",
         "epochs": 64,
         "batch_size": 128
-        },
+    },
     "dbert": {
-        "lr": 7e-5,
+        "lr": 7e-05,
         "checkpoint": "bin/distillbert-best-fd.pt",
         "epochs": 123,
         "batch_size": 128
-        },
+    },
     "mpnet": {
         "hidden_size": 1024,
         "activation": "relu",
         "dropout": 0.4348,
-        "lr": 36e-4,
+        "lr": 0.0036,
         "checkpoint": "bin/mpnet-nn-cpu.pt",
-        "e_thresh":{
+        "e_thresh": {
             "0.05": 0.717544,
             "0.1": 0.897005,
             "0.2": 1.351563,
@@ -33,7 +33,7 @@
             "0.9": 2.212998,
             "1.0": 3.225932
         },
-        "d_thresh":{
+        "d_thresh": {
             "0.05": 1.670134,
             "0.1": 1.218677,
             "0.2": 0.488802,
@@ -47,8 +47,8 @@
             "1.0": 0.7
         }
     },
-    "knn":{
-        "d_thresh":{
+    "knn": {
+        "d_thresh": {
             "0.05": 0.982418,
             "0.1": 0.995321,
             "0.2": 1.084372,
@@ -61,7 +61,7 @@
             "0.9": 0.382741,
             "1.0": 0.827624
         },
-        "e_thresh":{
+        "e_thresh": {
             "0.05": 0.832418,
             "0.1": 0.995321,
             "0.2": 1.084372,
@@ -74,7 +74,7 @@
             "0.9": 1.7,
             "1.0": 1.7
         },
-        "e_thresh_imdb":{
+        "e_thresh_imdb": {
             "0.05": 0.480709,
             "0.1": 0.479727,
             "0.2": 0.583423,
@@ -87,7 +87,7 @@
             "0.9": 0.684369,
             "1.0": 0.6898
         },
-        "d_thresh_imdb":{
+        "d_thresh_imdb": {
             "0.05": 0.896995,
             "0.1": 1.553999,
             "0.2": 1.463798,
@@ -102,10 +102,40 @@
         }
     },
     "train_path": "data/raw/banking77/train.csv",
-    "test_path": "data/raw/banking77/test.csv", 
+    "test_path": "data/raw/banking77/test.csv",
     "train3_path": "data/processed/banking77/best3_train.csv",
     "dev_path": "data/processed/banking77/dev.csv",
     "imdb_path": "data/processed/imdb/train.csv",
     "imdb_dev_path": "data/processed/imdb/dev.csv",
-    "imdb_test_path": "data/processed/imdb/test.csv"
+    "imdb_test_path": "data/processed/imdb/test.csv",
+    "lambda-tuning-cache": {
+        "0.05": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        },
+        "0.1": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        },
+        "0.2": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        },
+        "0.3": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        },
+        "0.4": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        },
+        "0.5": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        },
+        "0.6": {
+            "e_thresh": 0.5538362439230712,
+            "d_thresh": 1.2173840441842214
+        }
+    }
 }
