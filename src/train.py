@@ -3,6 +3,8 @@ import pandas as pd
 import transformers
 import torch
 
+import json
+
 import optuna
 import neptune
 import neptune.integrations.optuna as optuna_utils
@@ -110,8 +112,13 @@ def train_fn(model, train_loader, val_loader, optimizer, epochs, save_path):
         global BEST_LOSS
         if best_loss < BEST_LOSS:
             BEST_LOSS = best_loss
-            torch.save(model.state_dict(), save_path)
-            print(f"Best loss over all Trials: {BEST_LOSS}, Model saved")
+            # Handle case where save_path is a directory
+            if os.path.isdir(save_path) or save_path.endswith('/'):
+                save_file = os.path.join(save_path, "best_model.pt")
+            else:
+                save_file = save_path
+            torch.save(model.state_dict(), save_file)
+            print(f"Best loss over all Trials: {BEST_LOSS}, Model saved to {save_file}")
         early_stopping(avg_val_loss)
         if early_stopping.early_stop:
             print(f"Early stopping at epoch {epoch + 1}")
@@ -156,19 +163,44 @@ def preprocess_data():
     dev_dataset = TensorDataset(dev_embeddings, torch.tensor(dev['label'].tolist()))
     return train_dataset, dev_dataset
 
-
 if __name__ == "__main__":
+
     set_seed(42)
+
     # Load data
     train_dataset, dev_dataset = preprocess_data()
     print(f"Data loaded with trainig size: {len(train_dataset)} and dev size: {len(dev_dataset)}")
 
+    # Create study
     study = optuna.create_study(study_name="npnet-banking77", directions=["minimize", "maximize"])
     study.optimize(lambda trial: objective(trial, train_dataset, dev_dataset), n_trials=100)
-    # Log the best model parameters κ
-    print("Best trial:")
-    trial = study.best_trial
-    print(f"  Value: {trial.value}")
-    print("  Params: ")
-    for key, value in trial.params.items():
-        print(f"    {key}: {value}")
+
+    # Create results folder if it doesn't exist
+    os.makedirs("results", exist_ok=True)
+
+    # --- Save all trials ---
+    all_trials_data = []
+    for trial in study.trials:
+        all_trials_data.append({
+            "number": trial.number,
+            "state": str(trial.state),
+            "values": trial.values,
+            "params": trial.params
+        })
+
+    with open("results/all_trials.json", "w") as f:
+        json.dump(all_trials_data, f, indent=2)
+    print("✅ Saved all trials to results/all_trials.json")
+
+    # --- Save best trials (Pareto front) ---
+    best_trials_data = []
+    for trial in study.best_trials:
+        best_trials_data.append({
+            "number": trial.number,
+            "values": trial.values,
+            "params": trial.params
+        })
+
+    with open("results/best_trials.json", "w") as f:
+        json.dump(best_trials_data, f, indent=2)
+    print("✅ Saved best trials to results/best_trials.json")

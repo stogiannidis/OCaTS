@@ -7,7 +7,7 @@ import pandas as pd
 import optuna
 from sentence_transformers import SentenceTransformer
 
-from caches.base import CACHE_REGISTRY
+from src.caches.base import CACHE_REGISTRY
 from evaluate import load
 from utils.seeding import set_seed
 from models.mpnet import MPNetClassifier
